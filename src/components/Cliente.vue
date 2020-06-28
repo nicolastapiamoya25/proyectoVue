@@ -24,10 +24,6 @@
                             <v-card-text>
                             <v-container grid-list-md>
                                 <v-layout wrap>
-                                <v-flex xs6 sm6 md6>
-                                    <v-select v-model="tipo_persona" :items="tipo_personas" label="Tipo de Persona">
-                                    </v-select>
-                                </v-flex>
                                 <v-flex xs12 sm12 md12>
                                     <v-text-field v-model="nombre" label="Nombre"></v-text-field>
                                 </v-flex>
@@ -59,24 +55,6 @@
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click.native="close">Cancelar</v-btn>
                                 <v-btn color="blue darken-1" text @click.native="guardar">Guardar</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
-                    <v-dialog v-model="adModal" max-width="290">
-                        <v-card>
-                            <v-card-title class="headline" v-if="adAccion==1">¿Activar Item?</v-card-title>
-                            <v-card-title class="headline" v-if="adAccion==2">Desactivar Item?</v-card-title>
-                            <v-card-text>
-                                Estas a punto de 
-                                <span v-if="adAccion==1">Activar</span>
-                                <span v-if="adAccion==2">Desactivar</span>
-                                el Item {{ adNombre }}
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary darken-1" flat="flat" @click="activarDesactivarCerrar">Cancelar</v-btn>
-                                <v-btn v-if="adAccion==1" color="danger darken-4" flat="flat" @click="activar" >Activar</v-btn>
-                                <v-btn v-if="adAccion==2" color="danger darken-4" flat="flat" @click="desactivar" >Desactivar</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -113,7 +91,7 @@
     export default {
         data(){
             return {
-                usuarios:[],                
+                clientes:[],                
                 dialog: false,
                 headers: [
                     { text: 'Opciones', value: 'opciones', sortable: false },
@@ -136,8 +114,6 @@
                     protein: 0
                 },
                 id: '',
-                tipo_persona: '',
-                tipo_personas: ['Cliente','Proveedor'],
                 nombre: '',
                 tipo_documento: '',
                 documentos: ['DNI','RUT','PASAPORTE'],
@@ -155,7 +131,7 @@
         },
         computed: {
             formTitle () {
-                return this.editedIndex === -1 ? 'Nueva Persona' : 'Actualizar Persona'
+                return this.editedIndex === -1 ? 'Nueva Cliente' : 'Actualizar Cliente'
             }
         },
 
@@ -167,42 +143,27 @@
 
         created () {
             this.listar();
-            this.select();
         },
         methods:{
             listar(){
                 let me = this;
-                axios.get('api/Usuarios/Listar').then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.get('api/Personas/ListarClientes', configuracion).then(function(response){
                     //console.log(response);
-                    me.usuarios=response.data;
-                }).catch(function(error){
-                    console.log(error);
-                });
-            },
-            select(){
-                let me = this;
-                var rolesArray = [];
-                axios.get('api/Roles/Select').then(function(response){
-                    rolesArray = response.data;
-                    rolesArray.map(function(x){
-                        me.roles.push(
-                            {text: x.nombre, value: x.idrol});
-                    });
+                    me.clientes=response.data;
                 }).catch(function(error){
                     console.log(error);
                 });
             },
             editItem (item) {
-                this.id = item.idusuario;
-                this.idrol = item.idrol;
+                this.id = item.idpersona;
                 this.nombre = item.nombre;
                 this.tipo_documento = item.tipo_documento;
                 this.num_documento = item.num_documento;
                 this.direccion = item.direccion;
                 this.telefono = item.telefono;
                 this.email = item.email;
-                this.password = item.password_hash;
-                this.passwordAnt = item.password_hash;
                 this.editedIndex = 1;
                 this.dialog = true
             },
@@ -212,15 +173,12 @@
             },
             limpiar(){
                 this.id = "";
-                this.idrol = "";
                 this.nombre = "";
                 this.tipo_documento = "";
                 this.num_documento = "";
                 this.direccion = "";
                 this.telefono = "";
                 this.email = "";
-                this.password = "";
-                this.passwordAnt = "";
                 this.actPassword = false;
                 this.editedIndex=-1;
             },
@@ -231,22 +189,18 @@
                 if (this.editedIndex > -1) {
                     //Código para editar
                     let me=this;
-                    if(me.password != me.passwordAnt){
-                        me.actPassword = true;
-                    }
-
-                    axios.put('api/Usuarios/Actualizar',{
-                        'idusuario' : me.id,
-                        'idrol' : me.idrol,
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
+                    axios.put('api/Personas/Actualizar',{
+                        'idpersona' : me.id,
+                        'tipo_persona' : 'Cliente',
                         'nombre' : me.nombre,
                         'tipo_documento' : me.tipo_documento,
                         'num_documento' : me.num_documento,
                         'direccion': me.direccion,
                         'telefono' : me.telefono,
-                        'email' : me.email,
-                        'password' : me.password,
-                        'act_password' : me.actPassword
-                    }).then(function(response){
+                        'email' : me.email
+                    },configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -256,16 +210,17 @@
                 } else {
                     //Código para guardar
                     let me=this;
-                    axios.post('api/Usuarios/Crear',{
-                        'idrol' : me.idrol,
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
+                    axios.post('api/Personas/Crear',{
+                        'tipo_persona' : 'Cliente',
                         'nombre' : me.nombre,
                         'tipo_documento' : me.tipo_documento,
                         'num_documento' : me.num_documento,
                         'direccion': me.direccion,
                         'telefono' : me.telefono,
-                        'email' : me.email,
-                        'password' : me.password
-                    }).then(function(response){
+                        'email' : me.email
+                    },configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -279,9 +234,6 @@
                 this.validaMensaje = [];
                 if(this.nombre.length<3 || this.nombre.length>50){
                     this.validaMensaje.push("El nombre debe tener mas de 3 caracteres y menos de 50");
-                }
-                if(!this.idrol){
-                    this.validaMensaje.push("Seleccione un Rol");
                 }
                 if(!this.nombre || this.nombre==""){
                     this.validaMensaje.push("Ingrese el nombre");
@@ -298,59 +250,10 @@
                 if(!this.telefono || this.telefono==""){
                     this.validaMensaje.push("Ingrese el telefono");
                 }
-                if(!this.password || this.password==""){
-                    this.validaMensaje.push("Ingrese el password");
-                }
                 if(this.validaMensaje.length){
                     this.valida=1;
                 }
                 return this.valida;
-            },
-            activarDesactivarMostrar(accion,item){
-                this.adModal = 1;
-                this.adNombre = item.nombre;
-                this.adId = item.idusuario;
-
-                if(accion==1){
-                    this.adAccion = 1;
-
-                }
-                else if(accion==2){
-                    this.adAccion = 2;
-                }else{
-                    this.adModal = 0;
-                }
-            },
-            activarDesactivarCerrar(){
-                this.adModal = 0;
-            },
-            activar(){
-                let me=this;
-                axios.put('api/Usuarios/Activar/'+this.adId,{
-
-                }).then(function(response){
-                    me.adModal = 0;
-                    me.adAccion = 0
-                    me.adNombre = "";
-                    me.adId = "";
-                    me.listar();                       
-                }).catch(function(error){
-                    console.log(error);
-                });
-            },
-            desactivar(){
-                let me=this;
-                axios.put('api/Usuarios/Desactivar/'+this.adId,{
-
-                }).then(function(response){
-                    me.adModal = 0;
-                    me.adAccion = 0
-                    me.adNombre = "";
-                    me.adId = "";
-                    me.listar();                       
-                }).catch(function(error){
-                    console.log(error);
-                });
             }
         }        
     }

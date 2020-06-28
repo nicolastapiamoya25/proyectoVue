@@ -179,7 +179,9 @@
         methods:{
             listar(){
                 let me = this;
-                axios.get('api/Articulos/Listar').then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.get('api/Articulos/Listar',configuracion).then(function(response){
                     //console.log(response);
                     me.articulos=response.data;
                 }).catch(function(error){
@@ -188,8 +190,10 @@
             },
             select(){
                 let me = this;
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
                 var categoriasArray = [];
-                axios.get('api/Categorias/Select').then(function(response){
+                axios.get('api/Categorias/Select',configuracion).then(function(response){
                     categoriasArray = response.data;
                     categoriasArray.map(function(x){
                         me.categorias.push(
@@ -232,6 +236,8 @@
                 if (this.editedIndex > -1) {
                     //Código para editar
                     let me=this;
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
                     axios.put('api/Articulos/Actualizar',{
                         'idarticulo' : me.id,
                         'idcategoria' : me.idcategoria,
@@ -240,7 +246,7 @@
                         'precio_venta' : me.precio_venta,
                         'stock' : me.stock,
                         'descripcion': me.descripcion
-                    }).then(function(response){
+                    },configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -250,6 +256,8 @@
                 } else {
                     //Código para guardar
                     let me=this;
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
                     axios.post('api/Articulos/Crear',{
                         'idcategoria' : me.idcategoria,
                         'codigo' : me.codigo,
@@ -257,7 +265,7 @@
                         'precio_venta' : me.precio_venta,
                         'stock' : me.stock,
                         'descripcion': me.descripcion
-                    }).then(function(response){
+                    },configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -305,10 +313,10 @@
                 this.adModal = 0;
             },
             activar(){
-                let me=this;
-                axios.put('api/Articulos/Activar/'+this.adId,{
-
-                }).then(function(response){
+                let me=this;               
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.put('api/Articulos/Activar/'+this.adId,{},configuracion).then(function(response){
                     me.adModal = 0;
                     me.adAccion = 0
                     me.adNombre = "";
@@ -320,9 +328,9 @@
             },
             desactivar(){
                 let me=this;
-                axios.put('api/Articulos/Desactivar/'+this.adId,{
-
-                }).then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.put('api/Articulos/Desactivar/'+this.adId,{},configuracion).then(function(response){
                     me.adModal = 0;
                     me.adAccion = 0
                     me.adNombre = "";

@@ -194,7 +194,9 @@
         methods:{
             listar(){
                 let me = this;
-                axios.get('api/Usuarios/Listar').then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.get('api/Usuarios/Listar', configuracion).then(function(response){
                     //console.log(response);
                     me.usuarios=response.data;
                 }).catch(function(error){
@@ -203,8 +205,10 @@
             },
             select(){
                 let me = this;
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
                 var rolesArray = [];
-                axios.get('api/Roles/Select').then(function(response){
+                axios.get('api/Roles/Select', configuracion).then(function(response){
                     rolesArray = response.data;
                     rolesArray.map(function(x){
                         me.roles.push(
@@ -253,6 +257,9 @@
                 if (this.editedIndex > -1) {
                     //Código para editar
                     let me=this;
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
+                    
                     if(me.password != me.passwordAnt){
                         me.actPassword = true;
                     }
@@ -268,7 +275,7 @@
                         'email' : me.email,
                         'password' : me.password,
                         'act_password' : me.actPassword
-                    }).then(function(response){
+                    }, configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -278,6 +285,8 @@
                 } else {
                     //Código para guardar
                     let me=this;
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
                     axios.post('api/Usuarios/Crear',{
                         'idrol' : me.idrol,
                         'nombre' : me.nombre,
@@ -287,7 +296,7 @@
                         'telefono' : me.telefono,
                         'email' : me.email,
                         'password' : me.password
-                    }).then(function(response){
+                    }, configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -348,9 +357,9 @@
             },
             activar(){
                 let me=this;
-                axios.put('api/Usuarios/Activar/'+this.adId,{
-
-                }).then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.put('api/Usuarios/Activar/'+this.adId,{}, configuracion).then(function(response){
                     me.adModal = 0;
                     me.adAccion = 0
                     me.adNombre = "";
@@ -362,9 +371,9 @@
             },
             desactivar(){
                 let me=this;
-                axios.put('api/Usuarios/Desactivar/'+this.adId,{
-
-                }).then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.put('api/Usuarios/Desactivar/'+this.adId,{}, configuracion).then(function(response){
                     me.adModal = 0;
                     me.adAccion = 0
                     me.adNombre = "";

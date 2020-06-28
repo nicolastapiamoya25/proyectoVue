@@ -152,7 +152,9 @@
         methods:{
             listar(){
                 let me=this;
-                axios.get('api/Roles/Listar').then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.get('api/Roles/Listar', configuracion).then(function(response){
                     //console.log(response);
                     me.roles=response.data;
                 }).catch(function(error){
@@ -166,12 +168,6 @@
                 this.editedIndex = 1;
                 this.dialog = true
             },
-
-            deleteItem (item) {
-                const index = this.desserts.indexOf(item)
-                confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
-            },
-
             close () {
                 this.dialog = false;
                 this.limpiar();
@@ -190,11 +186,13 @@
                 if (this.editedIndex > -1) {
                     //Código para editar
                     let me=this;
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
                     axios.put('api/Roles/Actualizar',{
                         'idrol' : me.id,
                         'nombre': me.nombre,
                         'descripcion': me.descripcion
-                    }).then(function(response){
+                    }, configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -204,10 +202,12 @@
                 } else {
                     //Código para guardar
                     let me=this;
+                    let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                    let configuracion = {headers : header};
                     axios.post('api/Roles/Crear',{
                         'nombre': me.nombre,
                         'descripcion': me.descripcion
-                    }).then(function(response){
+                    }, configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -247,9 +247,9 @@
             },
             activar(){
                 let me=this;
-                axios.put('api/Roles/Activar/'+this.adId,{
-
-                }).then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.put('api/Roles/Activar/'+this.adId,{}, configuracion).then(function(response){
                     me.adModal = 0;
                     me.adAccion = 0
                     me.adNombre = "";
@@ -261,9 +261,9 @@
             },
             desactivar(){
                 let me=this;
-                axios.put('api/Roles/Desactivar/'+this.adId,{
-
-                }).then(function(response){
+                let header = {"Authorization" : "Bearer " + this.$store.state.token};
+                let configuracion = {headers : header};
+                axios.put('api/Roles/Desactivar/'+this.adId,{}, configuracion).then(function(response){
                     me.adModal = 0;
                     me.adAccion = 0
                     me.adNombre = "";

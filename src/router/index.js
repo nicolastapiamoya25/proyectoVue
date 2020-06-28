@@ -7,6 +7,9 @@ import Articulo from '../components/Articulo.vue'
 import Rol from '../components/Rol.vue'
 import Usuario from '../components/Usuario.vue'
 import store from '../store'
+import Cliente from '../components/Cliente.vue'
+import Proveedor from '../components/Proveedor.vue'
+
 
 Vue.use(VueRouter)
 
@@ -61,6 +64,24 @@ Vue.use(VueRouter)
     component: Usuario,
     meta : {
       administrador:true
+    }
+  },
+  {
+    path: '/clientes',
+    name: 'clientes',
+    component: Cliente,
+    meta : {
+      administrador:true,
+      vendedor:true
+    }
+  },
+  {
+    path: '/proveedor',
+    name: 'proveedor',
+    component: Proveedor,
+    meta : {
+      administrador:true,
+      vendedor:true
     }
   }
 ]

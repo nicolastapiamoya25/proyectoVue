@@ -3,7 +3,7 @@
     <v-layout align-start>
         <v-flex>
             <v-toolbar text color="white">
-                <v-toolbar-title>Categorías</v-toolbar-title>
+                <v-toolbar-title>Proveedores</v-toolbar-title>
                     <v-divider
                     class="mx-2"
                     inset
@@ -27,8 +27,21 @@
                                 <v-flex xs12 sm12 md12>
                                     <v-text-field v-model="nombre" label="Nombre"></v-text-field>
                                 </v-flex>
+                                <v-flex xs6 sm6 md6>
+                                    <v-select v-model="tipo_documento" :items="documentos" label="Tipo de Documento">
+                                    </v-select>
+                                </v-flex>
+                                <v-flex xs6 sm6 md6>
+                                    <v-text-field v-model="num_documento" label="N° de Documento"></v-text-field>
+                                </v-flex>
                                 <v-flex xs12 sm12 md12>
-                                    <v-text-field v-model="descripcion" label="Descripción"></v-text-field>
+                                    <v-text-field v-model="direccion" label="Dirección"></v-text-field>
+                                </v-flex>
+                                <v-flex xs12 sm12 md12>
+                                    <v-text-field v-model="telefono" label="Teléfono"></v-text-field>
+                                </v-flex>
+                                <v-flex xs12 sm12 md12>
+                                    <v-text-field v-model="email" label="Email"></v-text-field>
                                 </v-flex>
                                 <v-flex xs12 sm12 md12 v-show="valida">
                                     <div class="red--text" v-for="v in validaMensaje" :key="v" v-text="v">
@@ -45,52 +58,25 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
-                    <v-dialog v-model="adModal" max-width="290">
-                        <v-card>
-                            <v-card-title class="headline" v-if="adAccion==1">¿Activar Item?</v-card-title>
-                            <v-card-title class="headline" v-if="adAccion==2">Desactivar Item?</v-card-title>
-                            <v-card-text>
-                                Estas a punto de 
-                                <span v-if="adAccion==1">Activar</span>
-                                <span v-if="adAccion==2">Desactivar</span>
-                                el Item {{ adNombre }}
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary darken-1" flat="flat" @click="activarDesactivarCerrar">Cancelar</v-btn>
-                                <v-btn v-if="adAccion==1" color="danger darken-4" flat="flat" @click="activar" >Activar</v-btn>
-                                <v-btn v-if="adAccion==2" color="danger darken-4" flat="flat" @click="desactivar" >Desactivar</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
                 </v-toolbar>
             <v-data-table
                 :headers="headers"
-                :items="categorias"
+                :items="proveedores"
                 :search="search"
                 class="elevation-1"
             >
                 <template v-slot:item.opciones="{ item }">
                     <v-icon small class="mr-2" @click="editItem(item)">create</v-icon>
-                    <template v-if="item.condicion">
-                        <v-icon small @click="activarDesactivarMostrar(2,item)">block</v-icon> 
-                    </template>
-                    <template v-else>
-                            <v-icon small @click="activarDesactivarMostrar(1,item)">check</v-icon> 
-                        </template>
-                    </template>
-                <template v-slot:items="{ props }">
-                <td>{‌{ props.item.nombre }}</td>
-                <td>{‌{ props.item.descripcion }}</td>
                 </template>
-                <template v-slot:item.condicion="{ item }">
-                    <div v-if="item.condicion">
-                        <span class="blue--text">Activo</span>
-                    </div>
-                    <div v-else>
-                        <span class="red--text">Inactivo</span>
-                    </div>
-                </template>    
+                <template v-slot:items="{ props }">
+                <td>{‌{ props.item.tipo_persona }}</td>
+                <td>{‌{ props.item.nombre }}</td>
+                <td>{‌{ props.item.tipo_documento }}</td>
+                <td>{‌{ props.item.num_documento }}</td>
+                <td>{‌{ props.item.direccion }}</td>
+                <td>{‌{ props.item.telefono }}</td>
+                <td>{‌{ props.item.email }}</td>
+                </template>   
                 <template slot="no-data">
                 <v-btn color="primary" @click="listar()">Resetear</v-btn>
                 </template>
@@ -105,13 +91,17 @@
     export default {
         data(){
             return {
-                categorias:[],                
+                proveedores:[],                
                 dialog: false,
                 headers: [
-                     { text: 'Opciones', value: 'opciones', sortable: false },
+                    { text: 'Opciones', value: 'opciones', sortable: false },
+                    { text: 'Tipo de Persona', value: 'tipo_persona' },
                     { text: 'Nombre', value: 'nombre' },
-                    { text: 'Descripción', value: 'descripcion', sortable: false  },
-                    { text: 'Estado', value: 'condicion', sortable: false  }
+                    { text: 'Tipo Documento', value: 'tipo_documento' },
+                    { text: 'N° Documento', value: 'num_documento' },
+                    { text: 'Direccion', value: 'direccion' },
+                    { text: 'Teléfono', value: 'telefono', sortable: false  },
+                    { text: 'Email', value: 'email', sortable: false  }
                                    
                 ],
                 search: '',
@@ -125,7 +115,12 @@
                 },
                 id: '',
                 nombre: '',
-                descripcion: '',
+                tipo_documento: '',
+                documentos: ['DNI','RUT','PASAPORTE'],
+                num_documento: '',
+                direccion: '',
+                telefono: '',
+                email: '',
                 valida: 0,
                 validaMensaje:[],
                 adModal: 0,
@@ -136,7 +131,7 @@
         },
         computed: {
             formTitle () {
-                return this.editedIndex === -1 ? 'Nueva categoría' : 'Actualizar categoría'
+                return this.editedIndex === -1 ? 'Nuevo Proveedor' : 'Actualizar Proveedor'
             }
         },
 
@@ -151,54 +146,61 @@
         },
         methods:{
             listar(){
-                let me=this;
+                let me = this;
                 let header = {"Authorization" : "Bearer " + this.$store.state.token};
                 let configuracion = {headers : header};
-                axios.get('api/Categorias/Listar', configuracion).then(function(response){
+                axios.get('api/Personas/ListarProveedores',configuracion).then(function(response){
                     //console.log(response);
-                    me.categorias=response.data;
+                    me.proveedores=response.data;
                 }).catch(function(error){
                     console.log(error);
                 });
             },
             editItem (item) {
-                this.id = item.idcategoria;
+                this.id = item.idpersona;
                 this.nombre = item.nombre;
-                this.descripcion = item.descripcion;
+                this.tipo_documento = item.tipo_documento;
+                this.num_documento = item.num_documento;
+                this.direccion = item.direccion;
+                this.telefono = item.telefono;
+                this.email = item.email;
                 this.editedIndex = 1;
                 this.dialog = true
             },
-
-            deleteItem (item) {
-                const index = this.desserts.indexOf(item)
-                confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
-            },
-
             close () {
                 this.dialog = false;
                 this.limpiar();
             },
             limpiar(){
-                this.id="";
-                this.nombre="";
-                this.descripcion="";
+                this.id = "";
+                this.nombre = "";
+                this.tipo_documento = "";
+                this.num_documento = "";
+                this.direccion = "";
+                this.telefono = "";
+                this.email = "";
+                this.actPassword = false;
                 this.editedIndex=-1;
             },
             guardar () {
                 if(this.validar()){
                     return;
                 }
-
                 if (this.editedIndex > -1) {
                     //Código para editar
                     let me=this;
                     let header = {"Authorization" : "Bearer " + this.$store.state.token};
                     let configuracion = {headers : header};
-                    axios.put('api/Categorias/Actualizar',{
-                        'idcategoria' : me.id,
-                        'nombre': me.nombre,
-                        'descripcion': me.descripcion
-                    },configuracion).then(function(response){
+                    axios.put('api/Personas/Actualizar',{
+                        'idpersona' : me.id,
+                        'tipo_persona' : 'Proveedor',
+                        'nombre' : me.nombre,
+                        'tipo_documento' : me.tipo_documento,
+                        'num_documento' : me.num_documento,
+                        'direccion': me.direccion,
+                        'telefono' : me.telefono,
+                        'email' : me.email
+                    }, configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -210,10 +212,15 @@
                     let me=this;
                     let header = {"Authorization" : "Bearer " + this.$store.state.token};
                     let configuracion = {headers : header};
-                    axios.post('api/Categorias/Crear',{
-                        'nombre': me.nombre,
-                        'descripcion': me.descripcion
-                    },configuracion).then(function(response){
+                    axios.post('api/Personas/Crear',{
+                        'tipo_persona' : 'Proveedor',
+                        'nombre' : me.nombre,
+                        'tipo_documento' : me.tipo_documento,
+                        'num_documento' : me.num_documento,
+                        'direccion': me.direccion,
+                        'telefono' : me.telefono,
+                        'email' : me.email
+                    }, configuracion).then(function(response){
                         me.close();
                         me.listar();
                         me.limpiar();                        
@@ -228,56 +235,25 @@
                 if(this.nombre.length<3 || this.nombre.length>50){
                     this.validaMensaje.push("El nombre debe tener mas de 3 caracteres y menos de 50");
                 }
+                if(!this.nombre || this.nombre==""){
+                    this.validaMensaje.push("Ingrese el nombre");
+                }
+                if(!this.num_documento || this.num_documento==0){
+                    this.validaMensaje.push("Ingrese el numero de documento");
+                }
+                if(!this.direccion || this.direccion==""){
+                    this.validaMensaje.push("Ingrese el Direccion");
+                }
+                if(!this.tipo_documento || this.tipo_documento==""){
+                    this.validaMensaje.push("Ingrese el numero de Tipo de documento");
+                }
+                if(!this.telefono || this.telefono==""){
+                    this.validaMensaje.push("Ingrese el telefono");
+                }
                 if(this.validaMensaje.length){
                     this.valida=1;
                 }
                 return this.valida;
-            },
-            activarDesactivarMostrar(accion,item){
-                this.adModal = 1;
-                this.adNombre = item.nombre;
-                this.adId = item.idcategoria;
-
-                if(accion==1){
-                    this.adAccion = 1;
-
-                }
-                else if(accion==2){
-                    this.adAccion = 2;
-                }else{
-                    this.adModal = 0;
-                }
-            },
-            activarDesactivarCerrar(){
-                this.adModal = 0;
-            },
-            activar(){
-                let me=this;
-                let header = {"Authorization" : "Bearer " + this.$store.state.token};
-                let configuracion = {headers : header};
-                axios.put('api/Categorias/Activar/'+this.adId,{},configuracion).then(function(response){
-                    me.adModal = 0;
-                    me.adAccion = 0
-                    me.adNombre = "";
-                    me.adId = "";
-                    me.listar();                       
-                }).catch(function(error){
-                    console.log(error);
-                });
-            },
-            desactivar(){
-                let me=this;
-                let header = {"Authorization" : "Bearer " + this.$store.state.token};
-                let configuracion = {headers : header};
-                axios.put('api/Categorias/Desactivar/'+this.adId,{}, configuracion).then(function(response){
-                    me.adModal = 0;
-                    me.adAccion = 0
-                    me.adNombre = "";
-                    me.adId = "";
-                    me.listar();                       
-                }).catch(function(error){
-                    console.log(error);
-                });
             }
         }        
     }

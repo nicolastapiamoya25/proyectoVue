@@ -9,6 +9,7 @@ import Usuario from '../components/Usuario.vue'
 import store from '../store'
 import Cliente from '../components/Cliente.vue'
 import Proveedor from '../components/Proveedor.vue'
+import Ingreso from '../components/Ingreso.vue'
 
 
 Vue.use(VueRouter)
@@ -79,6 +80,15 @@ Vue.use(VueRouter)
     path: '/proveedor',
     name: 'proveedor',
     component: Proveedor,
+    meta : {
+      administrador:true,
+      almacenero:true
+    }
+  },
+  {
+    path: '/ingreso',
+    name: 'ingreso',
+    component: Ingreso,
     meta : {
       administrador:true,
       vendedor:true
